@@ -1,15 +1,17 @@
-branch = env.BRANCH_NAME
+node() {
+	stage('linting') {
+		echo "Running linting"
+	}
 
-node () {
-    stage('linting') {
-        echo "Running linting"
-    }
+	stage('security') {
+		echo "Running security"
+	}
 
-    stage('security') {
-        echo "Running security"
-    }
+	stage('unit tests') {
+		echo "Running unit tests"
+	}
 
-    stage('unit tests') {
+	stage('unit tests') {
     	echo "Running unit tests"
     }
     
@@ -18,16 +20,10 @@ node () {
     }
 
     stage('e2e tests') {
-        echo "Running e2e integration tests"
+    	echo "Running e2e integration tests"
     }
 
     stage('coverage report') {
     	echo "Runnning coverage report"
-	}
-}
-
-node() {
-	stage('performance') {
-		echo "Trying to work in a second node"
 	}
 }
