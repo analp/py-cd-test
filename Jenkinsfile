@@ -10,7 +10,7 @@ node() {
 	}
 
 	switch (branch) {
-		case 'master':
+		case 'develop':
 			stage('unit tests') {
 				echo "Running unit tests with coverage"
 			}
@@ -27,6 +27,10 @@ node() {
    				echo "Runnning coverage report"
 			}
 
+		case 'master':
+			stage('package') {
+				echo "Building package"
+			}
 			break
 
 		default:
