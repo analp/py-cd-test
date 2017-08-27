@@ -1,3 +1,5 @@
+branch = env.BRANCH_NAME
+
 node () {
     stage('linting') {
         echo "Running linting"
@@ -21,5 +23,11 @@ node () {
 
     stage('coverage report') {
     	echo "Runnning coverage report"
+	}
+}
+
+node() {
+	stage('performance') {
+		echo "Trying to work in a second node"
 	}
 }
