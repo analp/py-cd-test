@@ -1,3 +1,10 @@
+properties([
+	pipelineTriggers([
+		cron('0 */6 * * *')
+		pollSCM('')
+	])
+])
+
 branch = env.BRANCH_NAME
 
 node() {
@@ -9,26 +16,30 @@ node() {
 		echo "Running security"
 	}
 
-	if (branch.equals('develop')) {
-		stage('unit tests') {
-			echo "Running unit tests with coverage"
-		}
+	switch(branch) {
+		case 'develop':
+		case 'master':
+			stage('unit tests') {
+				echo "Running unit tests with coverage"
+			}
 
-   		stage('integration tests') {
-   			echo "Running integration tests"
-   		}
+   			stage('integration tests') {
+   				echo "Running integration tests"
+   			}
 
-   		stage('e2e tests') {
-   			echo "Running e2e integration tests"
-   		}
+   			stage('e2e tests') {
+   				echo "Running e2e integration tests"
+   			}
 
-   		stage('coverage report') {
-   			echo "Runnning coverage report"
-		}
-	} else {
-		stage('unit tests') {
-			echo "Running unit tests without coverage"
-		}
+   			stage('coverage report') {
+   				echo "Runnning coverage report"
+			}
+			break
+
+		default:
+			stage('unit tests') {
+				echo "Running unit tests without coverage"
+			}
 	}
 
 	if (branch.equals('master')) {
