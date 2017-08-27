@@ -30,7 +30,7 @@ node() {
 			echo "Running unit tests without coverage"
 		}
 	}
-
+  
 	if (branch.equals('master')) {
 		stage('package') {
 			echo "Building package"
