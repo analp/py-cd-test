@@ -1,4 +1,6 @@
-branch = env.BRANCH_NAME
+properties([
+	pipelineTriggers([pollSCM('')])
+])
 
 node() {
 	stage('linting') {
@@ -9,14 +11,7 @@ node() {
 		echo "Running security"
 	}
 
-	switch(branch) {
-		case 'develop':
-		case 'master':
-			break
-
-		default:
-			stage('unit tests') {
-				echo "Running unit tests without coverage"
-			}
+	stage('unit tests') {
+		echo "Running unit tests without coverage"
 	}
 }
