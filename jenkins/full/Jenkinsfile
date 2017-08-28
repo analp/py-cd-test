@@ -1,15 +1,15 @@
 branch = env.BRANCH_NAME
 
 node() {
-	stage('linting') {
-		echo "Running linting"
-	}
+	if (branch.equals('master')) {
+		stage('linting') {
+			echo "Running linting"
+		}
 
-	stage('security') {
-		echo "Running security"
-	}
+		stage('security') {
+			echo "Running security"
+		}
 
-	if (branch.equals('develop')) {
 		stage('unit tests') {
 			echo "Running unit tests with coverage"
 		}
@@ -24,16 +24,6 @@ node() {
 
    		stage('coverage report') {
    			echo "Runnning coverage report"
-		}
-	} else {
-		stage('unit tests') {
-			echo "Running unit tests without coverage"
-		}
-	}
-  
-	if (branch.equals('master')) {
-		stage('package') {
-			echo "Building package"
 		}
 	}
 }

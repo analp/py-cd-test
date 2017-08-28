@@ -1,0 +1,22 @@
+branch = env.BRANCH_NAME
+
+node() {
+	stage('linting') {
+		echo "Running linting"
+	}
+
+	stage('security') {
+		echo "Running security"
+	}
+
+	switch(branch) {
+		case 'develop':
+		case 'master':
+			break
+
+		default:
+			stage('unit tests') {
+				echo "Running unit tests without coverage"
+			}
+	}
+}
