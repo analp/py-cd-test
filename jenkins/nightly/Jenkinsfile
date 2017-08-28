@@ -1,5 +1,5 @@
 properties([
-	pipelineTriggers([pollSCM('')])
+	pipelineTriggers([cron('0 */3 * * *')])
 ])
 
 node() {
@@ -25,9 +25,5 @@ node() {
 
    	stage('coverage report') {
    		echo "Runnning coverage report"
-	}
-	
-	stage('build package') {
-		echo "Building package"
 	}
 }

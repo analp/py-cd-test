@@ -1,0 +1,9 @@
+properties([
+	pipelineTriggers([cron('0 */6 * * *')])
+])
+
+node() {
+	stage('benchmarks') {
+		echo "Running benchmarks"
+	}
+}
