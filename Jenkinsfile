@@ -38,20 +38,22 @@ node() {
 			break
 
 		case 'develop':
-			stage('unit tests') {
-				echo "Running unit tests with coverage"
-			}
+			if (timerTrigger) {
+				stage('unit tests') {
+					echo "Running unit tests with coverage"
+				}
 
-   			stage('integration tests') {
-   				echo "Running integration tests"
-   			}
+   				stage('integration tests') {
+   					echo "Running integration tests"
+   				}
 
-   			stage('e2e tests') {
-   				echo "Running e2e integration tests"
-   			}
+   				stage('e2e tests') {
+   					echo "Running e2e integration tests"
+   				}
 
-   			stage('coverage report') {
-   				echo "Runnning coverage report"
+   				stage('coverage report') {
+   					echo "Runnning coverage report"
+				}
 			}
 			break
 		default:
