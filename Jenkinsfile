@@ -20,6 +20,18 @@ def full_build() {
 		}
 	)
 
+	stages.push(
+		stage('e2e tests') {
+			echo "Running e2e tests"
+		}
+	)
+
+	stages.push(
+		stage('coverage report') {
+			echo "Running coverage report"
+		}
+	)
+
 	return stages
 }
 
@@ -34,55 +46,21 @@ branch = env.BRANCH_NAME
 def timerTrigger = currentBuild.rawBuild.getCause(hudson.triggers.TimerTrigger$TimerTriggerCause)
 
 node() {
-	full_build()
-
 	switch(branch) {
 		case 'master':
-			stage('unit tests') {
-				echo "Running unit tests with coverage"
-			}
+			full_build()
 
-   			stage('integration tests') {
-   				echo "Running integration tests"
-   			}
-
-   			stage('e2e tests') {
-   				echo "Running e2e integration tests"
-   			}
-
-   			stage('coverage report') {
-   				echo "Runnning coverage report"
+			stage('build package') {
+				echo "Building package"
 			}
 			break
 
 		case 'develop':
 			if (timerTrigger) {
-				stage('unit tests') {
-					echo "Running unit tests with coverage"
-				}
-
-   				stage('integration tests') {
-   					echo "Running integration tests"
-   				}
-
-   				stage('e2e tests') {
-   					echo "Running e2e integration tests"
-   				}
-
-   				stage('coverage report') {
-   					echo "Runnning coverage report"
-				}
+				full_build()
 			}
 			break
 		default:
-			stage('unit tests') {
-				echo "Running unit tests without coverage"
-			}
-	}
-
-	if (branch == 'master') {
-		stage('build package') {
-			echo "Building package"
-		}
+			quick_build("without coverage)
 	}
 }
