@@ -6,6 +6,8 @@ properties([
 ])
 
 branch = env.BRANCH_NAME
+def timerTrigger = currentBuild.rawBuild.getCause(hudson.triggers.TimerTrigger$TimerTriggerCause)
+
 
 node() {
 	stage('linting') {
@@ -18,6 +20,23 @@ node() {
 
 	switch(branch) {
 		case 'master':
+			stage('unit tests') {
+				echo "Running unit tests with coverage"
+			}
+
+   			stage('integration tests') {
+   				echo "Running integration tests"
+   			}
+
+   			stage('e2e tests') {
+   				echo "Running e2e integration tests"
+   			}
+
+   			stage('coverage report') {
+   				echo "Runnning coverage report"
+			}
+			break
+
 		case 'develop':
 			stage('unit tests') {
 				echo "Running unit tests with coverage"
