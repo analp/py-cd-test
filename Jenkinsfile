@@ -1,3 +1,40 @@
+def quick_build(def coverage) {
+	return [
+		stage('linting') {
+			echo "Running linting"
+		},
+		stage('security') {
+			echo "Running security"
+		},
+		stage('unit tests') {
+			echo "Running unit tests ${coverage}"
+		}
+	]
+}
+
+def full_build() {
+	def stages = quick_build("with coverage")
+	stages.push(
+		stage('integration tests') {
+			echo "Running integration tests with coverage"
+		}
+	)
+
+	stages.push(
+		stage('e2e tests') {
+			echo "Running e2e tests"
+		}
+	)
+
+	stages.push(
+		stage('coverage report') {
+			echo "Running coverage report"
+		}
+	)
+
+	return stages
+}
+
 properties([
 	pipelineTriggers([
 		cron('H */3 * * *'),
@@ -8,61 +45,22 @@ properties([
 branch = env.BRANCH_NAME
 def timerTrigger = currentBuild.rawBuild.getCause(hudson.triggers.TimerTrigger$TimerTriggerCause)
 
-
 node() {
-	stage('linting') {
-		echo "Running linting"
-	}
-
-	stage('security') {
-		echo "Running security"
-	}
-
 	switch(branch) {
 		case 'master':
-			stage('unit tests') {
-				echo "Running unit tests with coverage"
-			}
+			full_build()
 
-   			stage('integration tests') {
-   				echo "Running integration tests"
-   			}
-
-   			stage('e2e tests') {
-   				echo "Running e2e integration tests"
-   			}
-
-   			stage('coverage report') {
-   				echo "Runnning coverage report"
+			stage('build package') {
+				echo "Building package"
 			}
 			break
 
 		case 'develop':
-			stage('unit tests') {
-				echo "Running unit tests with coverage"
-			}
-
-   			stage('integration tests') {
-   				echo "Running integration tests"
-   			}
-
-   			stage('e2e tests') {
-   				echo "Running e2e integration tests"
-   			}
-
-   			stage('coverage report') {
-   				echo "Runnning coverage report"
+			if (timerTrigger) {
+				full_build()
 			}
 			break
 		default:
-			stage('unit tests') {
-				echo "Running unit tests without coverage"
-			}
-	}
-
-	if (branch == 'master') {
-		stage('build package') {
-			echo "Building package"
-		}
+			quick_build("without coverage")
 	}
 }
