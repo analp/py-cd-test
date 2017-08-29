@@ -48,10 +48,12 @@ def timerTrigger = currentBuild.rawBuild.getCause(hudson.triggers.TimerTrigger$T
 node() {
 	switch(branch) {
 		case 'master':
-			full_build()
+			if (!timerTrigger) {
+				full_build()
 
-			stage('build package') {
-				echo "Building package"
+				stage('build package') {
+					echo "Building package"
+				}
 			}
 			break
 
@@ -61,6 +63,8 @@ node() {
 			}
 			break
 		default:
-			quick_build("without coverage")
+			if (!timerTrigger) {
+				quick_build("without coverage")
+			}
 	}
 }
