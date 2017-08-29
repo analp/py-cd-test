@@ -1,5 +1,8 @@
 properties([
-	pipelineTriggers([cron('0 */3 * * *')])
+	pipelineTriggers([
+		cron('0 */3 * * *'),
+		pollSCM('H/5 * * * *')
+	])
 ])
 
 node() {
