@@ -7,7 +7,13 @@ def quick_build(def coverage) {
 			echo "Running security"
 		},
 		stage('unit tests') {
-			echo "Running unit tests ${coverage}"
+			parallel (
+				node("pypy3") {
+					echo "Running unit test in pypy3-${cov_option}"
+				},
+				node("py36") {
+					echo "Running unit test in py36-${cov_option}"
+				}
 		}
 	]
 }
