@@ -1,3 +1,28 @@
+def quick_build(def coverage) {
+	return [
+		stage('linting') {
+			echo "Running linting"
+		},
+		stage('security') {
+			echo "Running security"
+		},
+		stage('unit tests') {
+			echo "Running unit tests ${coverage}"
+		}
+	]
+}
+
+def full_build() {
+	def stages = quick_build("with coverage")
+	stages.push(
+		stage('integration tests') {
+			echo "Running integration tests with coverage"
+		}
+	)
+
+	return stages
+}
+
 properties([
 	pipelineTriggers([
 		cron('H */3 * * *'),
@@ -8,19 +33,8 @@ properties([
 branch = env.BRANCH_NAME
 def timerTrigger = currentBuild.rawBuild.getCause(hudson.triggers.TimerTrigger$TimerTriggerCause)
 
-def quick_build() {
-	return [
-		stage('linting') {
-			echo "Running linting"
-		},
-		stage('security') {
-			echo "Running security"
-		}
-	]
-}
-
 node() {
-	quick_build()
+	full_build()
 
 	switch(branch) {
 		case 'master':
