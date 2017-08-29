@@ -8,11 +8,14 @@ properties([
 branch = env.BRANCH_NAME
 def timerTrigger = currentBuild.rawBuild.getCause(hudson.triggers.TimerTrigger$TimerTriggerCause)
 
-
-node() {
-	stage('linting') {
+def linting() {
+	return stage('linting') {
 		echo "Running linting"
 	}
+}
+
+node() {
+	linting()
 
 	stage('security') {
 		echo "Running security"
