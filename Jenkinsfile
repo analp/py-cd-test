@@ -1,4 +1,4 @@
-def quick_build(def coverage) {
+def quick_build(def cov_option) {
 	return [
 		stage('linting') {
 			echo "Running linting"
@@ -7,22 +7,38 @@ def quick_build(def coverage) {
 			echo "Running security"
 		},
 		stage('unit tests') {
-			parallel (
-				node("pypy3") {
+			def branches = [:]
+			branches["pypy3"] = {
+				node() {
 					echo "Running unit test in pypy3-${cov_option}"
-				},
-				node("py36") {
+				}
+			}
+			branches["py36"] = {
+				node() {
 					echo "Running unit test in py36-${cov_option}"
 				}
+			}
+			parallel branches
 		}
 	]
 }
 
 def full_build() {
-	def stages = quick_build("with coverage")
+	def stages = quick_build("cov")
 	stages.push(
 		stage('integration tests') {
-			echo "Running integration tests with coverage"
+			def branches = [:]
+			branches["pypy3"] = {
+				node() {
+					echo "Running integration test in pypy3-cov"
+				}
+			}
+			branches["py36"] = {
+				node() {
+					echo "Running integration test in py36-cov"
+				}
+			}
+			parallel branches
 		}
 	)
 
@@ -49,12 +65,19 @@ properties([
 ])
 
 branch = env.BRANCH_NAME
-def timerTrigger = currentBuild.rawBuild.getCause(hudson.triggers.TimerTrigger$TimerTriggerCause)
+
+@NonCPS
+def isTimerTriggered() {
+	def timerTrigger = currentBuild.rawBuild.getCause(hudson.triggers.TimerTrigger$TimerTriggerCause)
+	return !!timerTrigger
+}
 
 node() {
+	def isTimerTriggered = isTimerTriggered() 
+
 	switch(branch) {
 		case 'master':
-			if (!timerTrigger) {
+			if (!isTimerTriggered) {
 				full_build()
 
 				stage('build package') {
@@ -64,13 +87,13 @@ node() {
 			break
 
 		case 'develop':
-			if (timerTrigger) {
+			if (isTimerTriggered) {
 				full_build()
 			}
 			break
 		default:
-			if (!timerTrigger) {
-				quick_build("without coverage")
+			if (!isTimerTriggered) {
+				quick_build("nocov")
 			}
 	}
 }
