@@ -1,4 +1,27 @@
+def run_tests(def interpreter, def cov_option, def all) {
+	return {	
+		node() {
+			stage('unit tests') {
+				echo "Running unit tests in ${interpreter}-${cov_option}"
+			}
+			
+			if(all) {
+				stage('integration tests') {
+					echo "Running integration tests in ${interpreter}-${cov_option}"
+				}
+				stage('e2e tests') {
+					echo "Running e2e tests in ${interpreter}-${cov_option}"
+				}
+			}
+		}
+	}
+}
+
 def quick_build(def cov_option) {
+	def tests = [:]
+	tests["pypy3"] = run_tests("pypy3", "nocov", false)
+	tests["py36"] = run_tests("py36", "nocov", false)
+
 	return [
 		stage('linting') {
 			echo "Running linting"
@@ -6,55 +29,31 @@ def quick_build(def cov_option) {
 		stage('security') {
 			echo "Running security"
 		},
-		stage('unit tests') {
-			def branches = [:]
-			branches["pypy3"] = {
-				node() {
-					echo "Running unit test in pypy3-${cov_option}"
-				}
-			}
-			branches["py36"] = {
-				node() {
-					echo "Running unit test in py36-${cov_option}"
-				}
-			}
-			parallel branches
+		stage('tests') {
+			parallel(tests)
 		}
 	]
 }
 
 def full_build() {
-	def stages = quick_build("cov")
-	stages.push(
-		stage('integration tests') {
-			def branches = [:]
-			branches["pypy3"] = {
-				node() {
-					echo "Running integration test in pypy3-cov"
-				}
-			}
-			branches["py36"] = {
-				node() {
-					echo "Running integration test in py36-cov"
-				}
-			}
-			parallel branches
-		}
-	)
+	def tests = [:]
+	tests["pypy3"] = run_tests("pypy3", "cov", true)
+	tests["py36"] = run_tests("py36", "cov", true)
 
-	stages.push(
-		stage('e2e tests') {
-			echo "Running e2e tests"
-		}
-	)
-
-	stages.push(
+	return [
+		stage('linting') {
+			echo "Running linting"
+		},
+		stage('security') {
+			echo "Running security"
+		},
+		stage('tests') {
+			parallel(tests)
+		},
 		stage('coverage report') {
 			echo "Running coverage report"
 		}
-	)
-
-	return stages
+	]
 }
 
 properties([
@@ -73,7 +72,9 @@ def isTimerTriggered() {
 }
 
 node() {
-	def isTimerTriggered = isTimerTriggered() 
+	def isTimerTriggered = isTimerTriggered()
+
+	checkout scm
 
 	switch(branch) {
 		case 'master':
@@ -95,5 +96,9 @@ node() {
 			if (!isTimerTriggered) {
 				quick_build("nocov")
 			}
+	}
+
+	stage('Cleanup') {
+		deleteDir()
 	}
 }
