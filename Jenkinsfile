@@ -63,7 +63,7 @@ def full_build() {
 properties([
 	pipelineTriggers([
 		cron('H */3 * * *'),
-		pollSCM('H/5 * * * *')
+		pollSCM('H/10 * * * *')
 	]),
 	buildDiscarder(logRotator(daysToKeepStr: '30'))
 ])
