@@ -31,6 +31,8 @@ def tests_pipeline(def interpreter, def cov_option, def all) {
 interpreters = ["pypy3", "py36"]
 
 def quick_build(def cov_option) {
+	checkout scm
+  
 	def stages = linting_pipeline()
 
 	def tests_branches = [:]
@@ -47,7 +49,9 @@ def quick_build(def cov_option) {
 }
 
 def full_build() {
-	def stages = linting_pipeline()
+	checkout scm
+
+  def stages = linting_pipeline()
 
 	def tests_branches = [:]
 	for (interpreter in interpreters) {
@@ -70,7 +74,7 @@ def full_build() {
 properties([
 	pipelineTriggers([
 		cron('H */3 * * *'),
-		pollSCM('H/10 * * * *')
+		pollSCM('H/5 * * * *')
 	]),
 	buildDiscarder(logRotator(daysToKeepStr: '30'))
 ])
@@ -86,8 +90,6 @@ def isTimerTriggered() {
 node() {
 	def isTimerTriggered = isTimerTriggered()
 
-	checkout scm
-
 	switch(branch) {
 		case 'master':
 			if (!isTimerTriggered) {
@@ -96,21 +98,21 @@ node() {
 				stage('build package') {
 					echo "Building package"
 				}
+
+				deleteDir()
 			}
 			break
 
 		case 'develop':
 			if (isTimerTriggered) {
 				full_build()
+				deleteDir()
 			}
 			break
 		default:
 			if (!isTimerTriggered) {
 				quick_build("nocov")
+				deleteDir()
 			}
-	}
-
-	stage('Cleanup') {
-		deleteDir()
 	}
 }
