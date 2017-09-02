@@ -1,4 +1,15 @@
-def run_tests(def interpreter, def cov_option, def all) {
+def linting_pipeline() {
+	return [
+		stage('linting') {
+			echo "Running linting"
+		},
+		stage('security') {
+			echo "Running security"
+		}
+	]
+}
+
+def tests_pipeline(def interpreter, def cov_option, def all) {
 	return {	
 		node() {
 			stage('unit tests') {
@@ -20,44 +31,40 @@ def run_tests(def interpreter, def cov_option, def all) {
 interpreters = ["pypy3", "py36"]
 
 def quick_build(def cov_option) {
-	def tests = [:]
-	for (interpreter in interpreters) {
-		tests[interpreter] = run_tests(interpreter, "nocov", false)
-	}
+	def stages = linting_pipeline()
 
-	return [
-		stage('linting') {
-			echo "Running linting"
-		},
-		stage('security') {
-			echo "Running security"
-		},
+	def tests_branches = [:]
+	for (interpreter in interpreters) {
+		tests_branches[interpreter] = tests_pipeline(interpreter, "nocov", false)
+	}
+	stages.push(
 		stage('tests') {
-			parallel(tests)
+			parallel(tests_branches)
 		}
-	]
+	)
+
+	return stages
 }
 
 def full_build() {
-	def tests = [:]
-	for (interpreter in interpreters) {
-		tests[interpreter] = run_tests(interpreter, "nocov", false)
-	}
+	def stages = linting_pipeline()
 
-	return [
-		stage('linting') {
-			echo "Running linting"
-		},
-		stage('security') {
-			echo "Running security"
-		},
+	def tests_branches = [:]
+	for (interpreter in interpreters) {
+		tests_branches[interpreter] = tests_pipeline(interpreter, "nocov", false)
+	}
+	stages.push(
 		stage('tests') {
-			parallel(tests)
-		},
+			parallel(tests_branches)
+		}
+	)
+	stages.push(
 		stage('coverage report') {
 			echo "Running coverage report"
 		}
-	]
+	)
+
+	return stages
 }
 
 properties([
