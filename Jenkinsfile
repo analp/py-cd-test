@@ -17,10 +17,13 @@ def run_tests(def interpreter, def cov_option, def all) {
 	}
 }
 
+interpreters = ["pypy3", "py36"]
+
 def quick_build(def cov_option) {
 	def tests = [:]
-	tests["pypy3"] = run_tests("pypy3", "nocov", false)
-	tests["py36"] = run_tests("py36", "nocov", false)
+	for (interpreter in interpreters) {
+		tests[interpreter] = run_tests(interpreter, "nocov", false)
+	}
 
 	return [
 		stage('linting') {
@@ -37,8 +40,9 @@ def quick_build(def cov_option) {
 
 def full_build() {
 	def tests = [:]
-	tests["pypy3"] = run_tests("pypy3", "cov", true)
-	tests["py36"] = run_tests("py36", "cov", true)
+	for (interpreter in interpreters) {
+		tests[interpreter] = run_tests(interpreter, "nocov", false)
+	}
 
 	return [
 		stage('linting') {
