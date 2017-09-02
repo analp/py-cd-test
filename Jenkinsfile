@@ -32,7 +32,7 @@ interpreters = ["pypy3", "py36"]
 
 def quick_build(def cov_option) {
 	checkout scm
-
+  
 	def stages = linting_pipeline()
 
 	def tests_branches = [:]
@@ -51,7 +51,7 @@ def quick_build(def cov_option) {
 def full_build() {
 	checkout scm
 
-	def stages = linting_pipeline()
+  def stages = linting_pipeline()
 
 	def tests_branches = [:]
 	for (interpreter in interpreters) {
