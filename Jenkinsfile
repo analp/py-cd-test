@@ -60,7 +60,8 @@ properties([
 	pipelineTriggers([
 		cron('H */3 * * *'),
 		pollSCM('H/5 * * * *')
-	])
+	]),
+	buildDiscarder(logRotator(daysToKeepStr: '30'))
 ])
 
 branch = env.BRANCH_NAME
