@@ -1,0 +1,17 @@
+#py-cd-talk.gocd.yaml
+environments:
+  dev:
+    pipelines:
+      - flags_quick
+pipelines:
+  flags_quick:
+    group: flags
+    locking: off
+    materials:
+      flags_source:
+        git: "https://github.com/bolsote/py-cd-talk.git"
+    stages:
+      - Linting:
+        tasks:
+          - exec:
+            command: tox 
