@@ -9,10 +9,7 @@ pipelines:
     group: flags
     materials:
       source:
-        scm: 5e9b10ad-3832-46fa-b040-a5cd9d596ffb
-        destination: feature-branch
-        blacklist:
-          - master
+        git: http://github.com/bolsote/py-cd-talk.git
     stages:
       - linting:
           jobs:
