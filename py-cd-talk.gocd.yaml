@@ -10,7 +10,7 @@ pipelines:
     materials:
       source:
         scm: 5e9b10ad-3832-46fa-b040-a5cd9d596ffb
-        destination: flags_feature
+        destination: .
         blacklist:
           - master
     stages:
